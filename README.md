@@ -17,7 +17,7 @@ Turns out it wasn't a big challenge and I was underestimating my abilities.
 It was a difficult project because I set a deadline of 3 days to complete it and I didn't have a lot of time.
 I'm pretty happy with how it turned out and I'm sure I could make it better, which I wil, but for now I'll submit it.
 
-When I started i wrote this as a guide with all the things i had to figure out and the things i already knew:
+## When I started i wrote this as a guide with all the things i had to figure out and the things i already knew:
 
 Parse arguments needed
 Error message (if number of args wrong)
