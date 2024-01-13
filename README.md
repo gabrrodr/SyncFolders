@@ -18,7 +18,7 @@ It was a difficult project because I set a deadline of 3 days to complete it and
 I'm pretty happy with how it turned out and I'm sure I could make it better, which I wil, but for now I'll submit it.
 
 When I started i wrote this as a guide with all the things i had to figure out and the things i already knew:
-/*
+
 Parse arguments needed
 Error message (if number of args wrong)
 Need infinite loop because periodic synchronization (interval in seconds)
@@ -43,7 +43,7 @@ Iterate through files in Source (howww?)
             -close source and replica file
     fopen (logFile) in append mode
 close source directory and log file
-Output must have the logFile operations*/
+Output must have the logFile operations
 ## Features
 
 - Recursive synchronization of directories and subdirectories.
