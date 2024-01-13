@@ -19,7 +19,7 @@ I'm pretty happy with how it turned out and I'm sure I could make it better, whi
 
 ## When I started i wrote this as a guide with all the things i had to figure out and the things i already knew:
 
-Parse arguments needed
+```Parse arguments needed
 Error message (if number of args wrong)
 Need infinite loop because periodic synchronization (interval in seconds)
 Const char because i dont want the functions to make alterations to these
@@ -44,6 +44,8 @@ Iterate through files in Source (howww?)
     fopen (logFile) in append mode
 close source directory and log file
 Output must have the logFile operations
+```
+
 ## Features
 
 - Recursive synchronization of directories and subdirectories.
@@ -56,10 +58,10 @@ Output must have the logFile operations
 Clone the repository and compile the synchronization tool:
 
 bash
-git clone git@github.com:gabrrodr/SyncFolders.git
+```git clone git@github.com:gabrrodr/SyncFolders.git
 cd C
--make
+make
 ./syncLoop sourcePath replicaPath 30 LogFile
 or
 cd Python
--python programname sourcePath replicaPath 30 LogFile
+python programname sourcePath replicaPath 30 LogFile
