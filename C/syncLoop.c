@@ -110,7 +110,7 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
                     		fprintf(log, "Error deleting %s from %s\n", entry->d_name, replicaPath);
                     		printf("Error deleting %s from %s\n", entry->d_name, replicaPath);
 							termination(sourcePath, replicaPath, NULL, NULL, NULL);
-                    		continue; // Skip copying if deletion fails
+                    		continue;
                 		}
                 		// Copy the file from source to replica
                 		copyFile(sourcePath, replicaPath);
@@ -129,7 +129,6 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
                     fprintf(log, "\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
                     printf("\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
                 }
-				//termination(sourcePath, replicaPath, NULL, NULL, NULL);
             } 
 		}
 	}
@@ -143,42 +142,6 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
     fclose(log);
 	return (0);
 }
-
-/*
-Parse arguments needed
-Error message (if number of args wrong)
-Need infinite loop because periodic synchronization (interval in seconds)
-Const char because i dont want the functions to make alterations to these
-*/
-
-/*
-open source directory and open LogFile
-    in logFile i write alterations 
-        file creation/copying/removal
-Iterate through files in Source dir (DIR)
-    -is it file or a directory?
-    (stat() to get info and then see what it is)
-    directory?
-        -recursive (subdirectories)
-    file?
-        -copy to replica
-                check if the entry is in both but theyre different (byte by byte)
-                    fopen and read both, if one is null continue
-                    fgetc(src) and fget(path)
-                    if EOF == -1 top
-                    remove the one in replica and copy the one from source
-                
-
-            -open source and replica file
-            -read from source and write to replica
-            -close source and replica file
-    fopen (logFile) in append mode
-close source directory and log file
-Output must have the logFile operations
-
-finds the files, sees the path of said file in the source, puts it in the same path but instead
-of source its replica
-*/
 
 int main(int argc, char **argv)
 {

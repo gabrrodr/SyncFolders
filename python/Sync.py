@@ -100,14 +100,6 @@ def check_replica(source, replica, log):
         print("Error opening replica directory: {}".format(str(e)))
         return 1
 
-def termination(source_path, replica_path, log):
-    if source_path:
-        del source_path
-    if replica_path:
-        del replica_path
-    if log:
-        log.close()
-
 def main():
     if len(sys.argv) != 5:
         print("ERROR: correct -> ./programName source replica interval logFile")
