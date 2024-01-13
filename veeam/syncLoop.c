@@ -1,20 +1,5 @@
 #include "sync.h"
 
-//Copy file from source to replica (char by char)
-void	copyFile(const char *source, const char *replica)
-{
-    FILE	*src, *rep;
-    char	ch;
-
-    src = fopen(source, "rb");
-    rep = fopen(replica, "wb");
-
-    while ((ch = fgetc(src)) != EOF)
-        fputc(ch, rep);
-    fclose(src);
-    fclose(rep);
-}
-
 //Synchronize
 int	syncFolders(const char *source, const char *replica, const char *logFile)
 {
@@ -37,15 +22,14 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
 	}
     while ((entry = readdir(dir)) != NULL) 
 	{
+		//handle leaks
+		if (sourcePath)
+			free(sourcePath);
+		if (replicaPath)
+			free(replicaPath);
         //. and .. to handle the current and parent directory cases
 		if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
 		{
-			//handle leaks
-			if (sourcePath)
-				free(sourcePath);
-			if (replicaPath)
-				free(replicaPath);
-
             sourcePath = concatenatePaths(source, entry->d_name);
             replicaPath = concatenatePaths(replica, entry->d_name);
 
@@ -69,8 +53,8 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
 					}
 					else
 					{
-						fprintf(log, "Created directory %s\n", replicaPath);
-						printf("Created directory %s\n", replicaPath);
+						fprintf(log, "\033[38;5;47mCreated directory\033[0m %s\n", replicaPath);
+						printf("\033[38;5;47mCreated directory\033[0m %s\n", replicaPath);
 					}
 				}
 				closedir(rep);
@@ -118,90 +102,44 @@ int	syncFolders(const char *source, const char *replica, const char *logFile)
                 		// Remove the file from replicaPath
                			if (remove(replicaPath) == 0)
 						{
-                    		fprintf(log, "Deleted %s from %s\n", entry->d_name, replica);
-                    		printf("Deleted %s from %s\n", entry->d_name, replica);
+                    		fprintf(log, "\033[38;5;196mDeleted \033[0m%s from %s\n", entry->d_name, replicaPath);
+                    		printf("\033[38;5;196mDeleted \033[0m%s from %s\n", entry->d_name, replicaPath);
                 		}
 						else
 						{
-                    		fprintf(log, "Error deleting %s from %s\n", entry->d_name, replica);
-                    		printf("Error deleting %s from %s\n", entry->d_name, replica);
+                    		fprintf(log, "Error deleting %s from %s\n", entry->d_name, replicaPath);
+                    		printf("Error deleting %s from %s\n", entry->d_name, replicaPath);
+							termination(sourcePath, replicaPath, NULL, NULL, NULL);
                     		continue; // Skip copying if deletion fails
                 		}
                 		// Copy the file from source to replica
                 		copyFile(sourcePath, replicaPath);
-                		fprintf(log, "Copied %s to %s\n", sourcePath, replicaPath);
-                		printf("Copied %s to %s\n", sourcePath, replicaPath);
+                		fprintf(log, "\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
+                		printf("\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
             		}
 					else
+					{
 						continue;
+					}
 				}
 				// If the entry exists in source but not in replica
                 else if (access(replicaPath, F_OK) == -1 && access(sourcePath, F_OK) != -1)
 				{
                     copyFile(sourcePath, replicaPath);
-                    fprintf(log, "Copied %s to %s\n", sourcePath, replicaPath);
-                    printf("Copied %s to %s\n", sourcePath, replicaPath);
+                    fprintf(log, "\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
+                    printf("\033[38;5;226mCopied \033[0m%s to %s\n", sourcePath, replicaPath);
                 }
+				//termination(sourcePath, replicaPath, NULL, NULL, NULL);
             } 
 		}
 	}
 	closedir(dir);
-	dir = opendir(replica);
-	if (dir == NULL)
+	if (checkReplica(source, replica, log))
 	{
-		termination(sourcePath, replicaPath, dir, log, "Error opening replica directory");
+		termination(sourcePath, replicaPath, NULL, NULL, NULL);
 		return (1);
 	}
-	while ((entry = readdir(dir)) != NULL)
-	{
-		if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
-		{
-			if (sourcePath)
-				free(sourcePath);
-			if (replicaPath)
-				free(replicaPath);
-
-			sourcePath = concatenatePaths(source, entry->d_name);
-			replicaPath = concatenatePaths(replica, entry->d_name);
-
-			if (stat(replicaPath, &fileStat) < 0)
-			{
-				termination(sourcePath, replicaPath, dir, log, "Error getting file stat from replica");
-				return (1);
-			}
-			if (S_ISDIR(fileStat.st_mode) && access(sourcePath, F_OK) == -1)
-			// If the entry exists in replica but not in source
-			{
-				if (deleteSubfoldersAndFiles(replicaPath, log))
-				{
-					termination(sourcePath, replicaPath, dir, log, "Error deleting subfolders and files from replica");
-					continue;
-				}
-				if (rmdir(replicaPath) == 0)
-				{
-					printf("Deleted %s\n", replicaPath);
-					fprintf(log, "Deleted %s\n", replicaPath);
-				}
-			}
-			if (S_ISREG(fileStat.st_mode))
-			{
-				if (access(sourcePath, F_OK) == -1)
-				{
-					if (remove(replicaPath) == 0)
-					{
-						fprintf(log, "Deleted %s from %s\n", entry->d_name, replica);
-						printf("Deleted %s from %s\n", entry->d_name, replica);
-					}
-					else
-					{
-						fprintf(log, "Error deleting %s from %s\n", entry->d_name, replica);
-						printf("Error deleting %s from %s\n", entry->d_name, replica);
-					}
-				}
-			}
-		}
-	}
-    closedir(dir);
+	termination(sourcePath, replicaPath, NULL, NULL, NULL);
     fclose(log);
 	return (0);
 }
