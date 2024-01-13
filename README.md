@@ -38,9 +38,8 @@ Iterate through files in Source (howww?)
                     fgetc(src) and fget(path)
                     if EOF == -1? cool
                     remove the one in replica and copy the one from source
-                
--open source and replica file
-            -read from source and write to replica
+        -open source and replica file
+        -read from source and write to replica
             -close source and replica file
     fopen (logFile) in append mode
 close source directory and log file
